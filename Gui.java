@@ -42,6 +42,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
    private JMenuBar bar;
 
    private List<Cell> mines;
+   private boolean firstClick = true;
 
    public Gui() {
       this.setTitle("Campo Fiorito");
@@ -69,7 +70,6 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
       this.p1.setLayout(new GridLayout(this.MAX_ROW, this.MAX_COL));
       this.p1.setSize(200, 100);
       this.initializeCell();
-      this.initializeMines();
       //this.initializeCellNumber();
       this.p.add(this.p1, "Center");
       this.p.add(new JLabel(" ", 0), "South");
@@ -89,6 +89,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
          this.m = 0;
 
          while (this.game) {
+            
             if (this.s < 10) {
                this.txt_time.setText(this.m + ":0" + this.s);
             } else {
@@ -121,10 +122,12 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
             } catch (Exception e) {
             }
 
-            ++this.s;
-            if (this.s == 61) {
-               this.s = 0;
-               ++this.m;
+            if(!firstClick){
+               ++this.s;
+               if (this.s == 61) {
+                  this.s = 0;
+                  ++this.m;
+               }
             }
          }
 
@@ -140,7 +143,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
    private void initializeCell() {
       for (int i = 0; i < this.MAX_ROW; ++i) {
          for (int j = 0; j < this.MAX_COL; ++j) {
-            this.c[i][j] = new Cell(0);
+            this.c[i][j] = new Cell(0, i, j);
             this.c[i][j].setFont(new Font("Monospaced", 1, 12));
             this.c[i][j].setMargin(new Insets(0, 0, 0, 0));
             this.p1.add(this.c[i][j]);
@@ -173,25 +176,28 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
       this.bar.add(menu);
       this.setJMenuBar(this.bar);
    }
-
    private void initializeMines() {
+      initializeMines(-2, -2);
+   }
+
+   private void initializeMines(int starty, int startx) {
       Random rand = new Random();
       this.mines = new ArrayList<>();
 
       for (int i = 0; i < this.max_mine; ++i) {
          int y = rand.nextInt(this.MAX_ROW);
          int x = rand.nextInt(this.MAX_COL);
-         if (this.c[y][x].isMine()) {
+         if (this.c[y][x].isMine() || (y >= starty - 1 && y <= starty + 1 && x >= startx - 1 && x <= startx + 1)) {
             --i;
          } else {
             this.c[y][x].setActionCommand("-1");
             mines.add(this.c[y][x]);
-            System.out.println("%d %d".formatted(y, x));
+
             for(int dy = -1; dy <= 1; dy++){
                for(int dx = -1; dx <=1; dx++){
                   int updateY = y + dy,
                      updateX = x + dx;
-                  if(updateY >= 0 && updateY < MAX_COL && updateX >= 0 && updateX < MAX_COL){
+                  if(updateY >= 0 && updateY < MAX_ROW && updateX >= 0 && updateX < MAX_COL){
                      this.c[updateY][updateX].add();
                   }
                }
@@ -333,7 +339,8 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
       this.txt_time.setText(this.m + ":0" + this.s);
       this.txt_mine.setText(this.max_mine + "");
       this.initializeCell();
-      this.initializeMines();
+      firstClick = true;
+
       //this.initializeCellNumber();
       SwingUtilities.updateComponentTreeUI(this);
    }
@@ -358,18 +365,17 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
          try {
             cell = (Cell) mouseEvent.getSource();
             System.out.println(cell.getNum());
-         } catch (Exception e) {
-         }
+         } catch (Exception e) {}
 
          if (SwingUtilities.isLeftMouseButton(mouseEvent) && !cell.isBlocked()) {
+
+            if(firstClick){
+               initializeMines(cell.getPosy(), cell.getPosx());
+               firstClick = false;
+            }
+
             if (!cell.isMine()) {
-               for (int i = 0; i < this.MAX_ROW; ++i) {
-                  for (int j = 0; j < this.MAX_COL; ++j) {
-                     if (cell == this.c[i][j]) {
-                        this.algorithm(i, j);
-                     }
-                  }
-               }
+               this.algorithm(cell.getPosy(), cell.getPosx());
             }
 
             if (cell.isMine()) {

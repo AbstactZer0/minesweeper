@@ -6,6 +6,9 @@ import java.awt.Color;
 
 public class Cell extends JButton {
    private int num;
+   private int posy;
+   private int posx;
+
    private boolean checked;
    private boolean blocked;
 
@@ -15,20 +18,27 @@ public class Cell extends JButton {
       super(text);
    }
 
-   public Cell(int num) {
+   public Cell(int num, int posy, int posx) {
       super("");
       this.num = num;
+      this.posy = posy;
+      this.posx = posx;
+
       this.checked = false;
       this.blocked = false;
       defaultColor = this.getBackground();
    }
 
-   public int getNum() {
-      return this.num;
+   public int getPosx() {
+      return posx;
+   }
+   
+   public int getPosy(){
+      return posy;
    }
 
-   public void setNum(int num) {
-      this.num = num;
+   public int getNum() {
+      return this.num;
    }
 
    public void add() {
