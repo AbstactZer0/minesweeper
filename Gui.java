@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -39,6 +41,8 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
    private Thread time;
    private JMenuBar bar;
 
+   private List<Cell> mines;
+
    public Gui() {
       this.setTitle("Campo Fiorito");
       this.game = true;
@@ -66,7 +70,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
       this.p1.setSize(200, 100);
       this.initializeCell();
       this.initializeMines();
-      this.initializeCellNumber();
+      //this.initializeCellNumber();
       this.p.add(this.p1, "Center");
       this.p.add(new JLabel(" ", 0), "South");
       this.p.add(this.p2, "North");
@@ -172,6 +176,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
 
    private void initializeMines() {
       Random rand = new Random();
+      this.mines = new ArrayList<>();
 
       for (int i = 0; i < this.max_mine; ++i) {
          int y = rand.nextInt(this.MAX_ROW);
@@ -180,29 +185,36 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
             --i;
          } else {
             this.c[y][x].setActionCommand("-1");
+            mines.add(this.c[y][x]);
+            System.out.println("%d %d".formatted(y, x));
+            for(int dy = -1; dy <= 1; dy++){
+               for(int dx = -1; dx <=1; dx++){
+                  int updateY = y + dy,
+                     updateX = x + dx;
+                  if(updateY >= 0 && updateY < MAX_COL && updateX >= 0 && updateX < MAX_COL){
+                     this.c[updateY][updateX].add();
+                  }
+               }
+            }
          }
       }
 
    }
 
    private void viewMines() {
-      for (int i = 0; i < this.MAX_ROW; ++i) {
-         for (int j = 0; j < this.MAX_COL; ++j) {
-            boolean isMine = this.c[i][j].isMine();
+      for (Cell mine : mines) {
 
-            if (isMine) {
-               ImageIcon imageIcon = new ImageIcon("Mine.png");
-               Image image = imageIcon.getImage().getScaledInstance(30, 30, 4);
+            ImageIcon imageIcon = new ImageIcon("Mine.png");
+            Image image = imageIcon.getImage().getScaledInstance(30, 30, 4);
 
-               if (this.c[i][j].isBlocked()) {
-                  this.c[i][j].setBackground(Color.WHITE);
-               } else {
-                  this.c[i][j].setBackground(Color.RED);
-               }
-
-               this.c[i][j].setIcon(imageIcon);
+            if (mine.isBlocked()) {
+               mine.setBackground(Color.WHITE);
+            } else {
+               mine.setBackground(Color.RED);
             }
-         }
+
+         mine.setIcon(imageIcon);
+         
       }
 
    }
@@ -236,27 +248,29 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
    }
 
    private void algorithm(int y, int x) {
-      Cell cell = this.c[y][x];
-      if (!cell.isChecked()) {
-         cell.checked();
-         if (cell.isBlocked()) {
-            cell.blocked();
-            ++this.max_mine;
-            this.txt_mine.setText(this.max_mine + "");
-         }
 
-         if (cell.getNum() == 0) {
-            this.algorithm(y + 1, x);
-            this.algorithm(y, x + 1);
-            this.algorithm(y - 1, x);
-            this.algorithm(y, x - 1);
-            this.algorithm(y + 1, x - 1);
-            this.algorithm(y + 1, x + 1);
-            this.algorithm(y - 1, x - 1);
-            this.algorithm(y - 1, x + 1);
+      if(y >= 0 && y < MAX_ROW && x >= 0 && x < MAX_COL){
+         Cell cell = this.c[y][x];
+         if (!cell.isChecked()) {
+            cell.checked();
+            if (cell.isBlocked()) {
+               cell.blocked();
+               ++this.max_mine;
+               this.txt_mine.setText(this.max_mine + "");
+            }
+
+            if (cell.getNum() == 0) {
+               this.algorithm(y + 1, x);
+               this.algorithm(y, x + 1);
+               this.algorithm(y - 1, x);
+               this.algorithm(y, x - 1);
+               this.algorithm(y + 1, x - 1);
+               this.algorithm(y + 1, x + 1);
+               this.algorithm(y - 1, x - 1);
+               this.algorithm(y - 1, x + 1);
+            }
          }
       }
-
    }
 
    public void actionPerformed(ActionEvent actionEvent) {
@@ -320,7 +334,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
       this.txt_mine.setText(this.max_mine + "");
       this.initializeCell();
       this.initializeMines();
-      this.initializeCellNumber();
+      //this.initializeCellNumber();
       SwingUtilities.updateComponentTreeUI(this);
    }
 
