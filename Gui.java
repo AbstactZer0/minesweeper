@@ -70,7 +70,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
       this.p1.setLayout(new GridLayout(this.MAX_ROW, this.MAX_COL));
       this.p1.setSize(200, 100);
       this.initializeCell();
-      //this.initializeCellNumber();
+      // this.initializeCellNumber();
       this.p.add(this.p1, "Center");
       this.p.add(new JLabel(" ", 0), "South");
       this.p.add(this.p2, "North");
@@ -89,7 +89,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
          this.m = 0;
 
          while (this.game) {
-            
+
             if (this.s < 10) {
                this.txt_time.setText(this.m + ":0" + this.s);
             } else {
@@ -122,7 +122,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
             } catch (Exception e) {
             }
 
-            if(!firstClick){
+            if (!firstClick) {
                ++this.s;
                if (this.s == 61) {
                   this.s = 0;
@@ -176,6 +176,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
       this.bar.add(menu);
       this.setJMenuBar(this.bar);
    }
+
    private void initializeMines() {
       initializeMines(-2, -2);
    }
@@ -193,11 +194,11 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
             this.c[y][x].setActionCommand("-1");
             mines.add(this.c[y][x]);
 
-            for(int dy = -1; dy <= 1; dy++){
-               for(int dx = -1; dx <=1; dx++){
+            for (int dy = -1; dy <= 1; dy++) {
+               for (int dx = -1; dx <= 1; dx++) {
                   int updateY = y + dy,
-                     updateX = x + dx;
-                  if(updateY >= 0 && updateY < MAX_ROW && updateX >= 0 && updateX < MAX_COL){
+                        updateX = x + dx;
+                  if (updateY >= 0 && updateY < MAX_ROW && updateX >= 0 && updateX < MAX_COL) {
                      this.c[updateY][updateX].add();
                   }
                }
@@ -210,17 +211,17 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
    private void viewMines() {
       for (Cell mine : mines) {
 
-            ImageIcon imageIcon = new ImageIcon("Mine.png");
-            Image image = imageIcon.getImage().getScaledInstance(30, 30, 4);
+         ImageIcon imageIcon = new ImageIcon("Mine.png");
+         Image image = imageIcon.getImage().getScaledInstance(30, 30, 4);
 
-            if (mine.isBlocked()) {
-               mine.setBackground(Color.WHITE);
-            } else {
-               mine.setBackground(Color.RED);
-            }
+         if (mine.isBlocked()) {
+            mine.setBackground(Color.WHITE);
+         } else {
+            mine.setBackground(Color.RED);
+         }
 
          mine.setIcon(imageIcon);
-         
+
       }
 
    }
@@ -235,13 +236,13 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
                   int tmpx = j - 1;
 
                   for (int l = 0; l < 3; ++l) {
-                     try
-                     {
-                           Cell cell = this.c[tmpy][tmpx];
+                     try {
+                        Cell cell = this.c[tmpy][tmpx];
                         if (cell.isMine()) {
                            this.c[i][j].add();
                         }
-                     }catch(ArrayIndexOutOfBoundsException e){}
+                     } catch (ArrayIndexOutOfBoundsException e) {
+                     }
                      ++tmpx;
                   }
 
@@ -255,7 +256,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
 
    private void algorithm(int y, int x) {
 
-      if(y >= 0 && y < MAX_ROW && x >= 0 && x < MAX_COL){
+      if (y >= 0 && y < MAX_ROW && x >= 0 && x < MAX_COL) {
          Cell cell = this.c[y][x];
          if (!cell.isChecked()) {
             cell.checked();
@@ -293,7 +294,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
          case "easy":
             this.MAX_COL = 9;
             this.MAX_ROW = 9;
-            this.max_mine = 20;
+            this.max_mine = 15;
             this.DIFFICULT = 0;
             break;
          case "medium":
@@ -317,7 +318,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
          case 0:
             this.MAX_COL = 9;
             this.MAX_ROW = 9;
-            this.max_mine = 20;
+            this.max_mine = 15;
             break;
          case 1:
             this.MAX_COL = 15;
@@ -341,7 +342,7 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
       this.initializeCell();
       firstClick = true;
 
-      //this.initializeCellNumber();
+      // this.initializeCellNumber();
       SwingUtilities.updateComponentTreeUI(this);
    }
 
@@ -365,11 +366,12 @@ public class Gui extends JFrame implements ActionListener, MouseListener, Runnab
          try {
             cell = (Cell) mouseEvent.getSource();
             System.out.println(cell.getNum());
-         } catch (Exception e) {}
+         } catch (Exception e) {
+         }
 
          if (SwingUtilities.isLeftMouseButton(mouseEvent) && !cell.isBlocked()) {
 
-            if(firstClick){
+            if (firstClick) {
                initializeMines(cell.getPosy(), cell.getPosx());
                firstClick = false;
             }
